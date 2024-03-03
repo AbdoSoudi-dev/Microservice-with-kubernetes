@@ -6,28 +6,16 @@ import Column from "primevue/column";
 import DataTable from "primevue/datatable";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
-import {computed, ref, watch} from "vue";
+import {computed, ref} from "vue";
 import api from "../axios.js";
 
 const props = defineProps({
   cartModal: Boolean
 });
 
-const cartModal = ref(props.cartModal);
+const cartModal = computed( ()=> props.cartModal );
 
 const emit = defineEmits(['updateCartModal'])
-
-watch(cartModal, (newValue, oldValue) => {
-  if (newValue === false) {
-    emit('updateCartModal');
-  }
-});
-
-watch(() => props.cartModal, (newValue, oldValue) => {
-  if (newValue === true) {
-    cartModal.value = newValue;
-  }
-});
 
 const formatCurrency = (value) => {
   return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
@@ -45,20 +33,18 @@ const createOrder = async () => {
       ...shippingInfo.value,
       order: cartItems.value.map(item => ({ product: item.name, quantity: item.quantity, _id: item._id }))
     });
-    cartModal.value = false;
     storeCart.dispatch('clearCart');
-  }
-  catch (error) {
+  }catch (error) {
     alert('something went wrong');
+  }finally{
+    emit('updateCartModal')
   }
-  cartModal.value = false;
-
 }
 
 </script>
 
 <template>
-  <Dialog v-model:visible="cartModal" modal :style="{ width: '50vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+  <Dialog @after-hide="emit('updateCartModal')" v-model:visible="cartModal" modal :style="{ width: '50vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <DataTable :value="cartItems" tableStyle="min-width: 50rem">
       <template #header>
         <div class="flex flex-wrap align-items-center justify-content-between gap-2">

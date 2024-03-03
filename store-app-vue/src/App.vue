@@ -4,7 +4,15 @@ import TheFooter from "./components/TheFooter.vue";
 </script>
 
 <template>
-    <router-view />
+    <div class="flex flex-col h-screen">
+        <the-header />
+
+        <div class="flex-1">
+            <router-view />
+        </div>
+
+        <the-footer />
+    </div>
 </template>
 
 <style scoped>
